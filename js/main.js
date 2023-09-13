@@ -1,4 +1,5 @@
 import { GAME_STATUS, PAIRS_COUNT } from './constants.js'
+import { getColorElementList, getColorListElement } from './selectors.js'
 import { getRandomColorPairs } from './utils.js'
 
 // Global variables
@@ -11,4 +12,27 @@ let gameState = GAME_STATUS.PLAYING
 // 3. Check win logic
 // 4. Add timer
 // 5. Handle replay click
-console.log(getRandomColorPairs(PAIRS_COUNT))
+
+function handleColorClick(liElement) {
+  if (!liElement) return
+  liElement.classList.add('active')
+}
+function initColorList() {
+  const colorList = getRandomColorPairs(PAIRS_COUNT)
+  const liList = getColorElementList()
+  liList.forEach((liElement, index) => {
+    const overlayElement = liElement.querySelector('.overlay')
+    overlayElement.style.backgroundColor = colorList[index]
+  })
+}
+function attachEventForLiElemnt() {
+  const ulElement = getColorListElement()
+  if (!ulElement) return
+  ulElement.addEventListener('click', (event) => {
+    handleColorClick(event.target)
+  })
+}
+;(() => {
+  initColorList()
+  attachEventForLiElemnt()
+})()
