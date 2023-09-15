@@ -1,3 +1,5 @@
+import { getPlayAgainButton, getTimerElement } from './selectors.js'
+
 function shufle(colorList) {
   if (!Array.isArray(colorList) || colorList.length < 2) return colorList
   for (let i = colorList.length - 1; i > 0; i--) {
@@ -22,4 +24,17 @@ export const getRandomColorPairs = (count) => {
   const fullColorList = [...colorList, ...colorList]
   shufle(fullColorList)
   return fullColorList
+}
+
+export function showPlayAgainButton() {
+  const playAgainElement = getPlayAgainButton()
+  if (playAgainElement) playAgainElement.classList.add('show')
+}
+export function hidePlayAgainButton() {
+  const playAgainElement = getPlayAgainButton()
+  if (playAgainElement) playAgainElement.classList.remove('show')
+}
+export function setTimerText(text) {
+  const timerElement = getTimerElement()
+  if (timerElement) timerElement.textContent = text
 }

@@ -1,6 +1,16 @@
 import { GAME_STATUS, PAIRS_COUNT } from './constants.js'
-import { getColorElementList, getColorListElement, getInActiveColorList } from './selectors.js'
-import { getRandomColorPairs } from './utils.js'
+import {
+  getColorElementList,
+  getColorListElement,
+  getInActiveColorList,
+  getPlayAgainButton,
+} from './selectors.js'
+import {
+  getRandomColorPairs,
+  hidePlayAgainButton,
+  setTimerText,
+  showPlayAgainButton,
+} from './utils.js'
 
 // Global variables
 let selections = []
@@ -15,7 +25,8 @@ let gameStatus = GAME_STATUS.PLAYING
 
 function handleColorClick(liElement) {
   const shouldBlockClick = [GAME_STATUS.BLOCKING, GAME_STATUS.FINISHED].includes(gameStatus)
-  if (!liElement || shouldBlockClick) return
+  const isClicked = liElement.classList.contains('active')
+  if (!liElement || isClicked || shouldBlockClick) return
   liElement.classList.add('active')
   // save clicked cell to selections
   selections.push(liElement)
@@ -29,7 +40,10 @@ function handleColorClick(liElement) {
     const isWin = getInActiveColorList().length === 0
     if (isWin) {
       //show replay button
+      showPlayAgainButton()
       // show YOU WIN
+      setTimerText('YOU WIN 👑')
+      gameStatus = GAME_STATUS.FINISHED
     }
     selections = []
     return
@@ -62,7 +76,30 @@ function attachEventForLiElemnt() {
     handleColorClick(event.target)
   })
 }
+function resetGame() {
+  // reset global variables
+  selections = []
+  gameStatus = GAME_STATUS.PLAYING
+  // reset DOM element
+  // remove class active from liList
+  const colorElementList = getColorElementList()
+  for (const colorElement of colorElementList) {
+    colorElement.classList.remove('active')
+  }
+  // hide play agint button
+  hidePlayAgainButton()
+  // set text timer
+  setTimerText('')
+  // generate new color list
+  initColorList()
+}
+function attachEventForPlayAgainButton() {
+  const playAgianButton = getPlayAgainButton()
+  if (!playAgianButton) return
+  playAgianButton.addEventListener('click', resetGame)
+}
 ;(() => {
   initColorList()
   attachEventForLiElemnt()
+  attachEventForPlayAgainButton()
 })()
