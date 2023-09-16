@@ -1,4 +1,4 @@
-import { getPlayAgainButton, getTimerElement } from './selectors.js'
+import { getColorBackground, getPlayAgainButton, getTimerElement } from './selectors.js'
 
 function shufle(colorList) {
   if (!Array.isArray(colorList) || colorList.length < 2) return colorList
@@ -60,4 +60,8 @@ export function createTimer({ seconds, onChange, onFinish }) {
     start,
     clear,
   }
+}
+export function changeBackGroundColor(color) {
+  const colorBackground = getColorBackground()
+  if (colorBackground) colorBackground.style.backgroundColor = color
 }
