@@ -1,4 +1,4 @@
-import { GAME_STATUS, PAIRS_COUNT } from './constants.js'
+import { GAME_STATUS, GAME_TIME, PAIRS_COUNT } from './constants.js'
 import {
   getColorElementList,
   getColorListElement,
@@ -6,6 +6,7 @@ import {
   getPlayAgainButton,
 } from './selectors.js'
 import {
+  createTimer,
   getRandomColorPairs,
   hidePlayAgainButton,
   setTimerText,
@@ -15,7 +16,20 @@ import {
 // Global variables
 let selections = []
 let gameStatus = GAME_STATUS.PLAYING
-
+let timer = createTimer({
+  seconds: GAME_TIME,
+  onChange: handleTimerChange,
+  onFinish: handleTimerFinish,
+})
+function handleTimerChange(seconds) {
+  const fullSeconds = `0${seconds}`.slice(-2) + 's'
+  setTimerText(fullSeconds)
+}
+function handleTimerFinish() {
+  gameStatus = GAME_STATUS.FINISHED
+  setTimerText('GAME OVER 😭')
+  showPlayAgainButton()
+}
 // TODOs
 // 1. Generating colors using https://github.com/davidmerfield/randomColor
 // 2. Attach item click for all li elements
@@ -43,6 +57,7 @@ function handleColorClick(liElement) {
       showPlayAgainButton()
       // show YOU WIN
       setTimerText('YOU WIN 👑')
+      timer.clear()
       gameStatus = GAME_STATUS.FINISHED
     }
     selections = []
@@ -56,7 +71,10 @@ function handleColorClick(liElement) {
     selections[1].classList.remove('active')
     // reset selections for the next turn
     selections = []
-    gameStatus = GAME_STATUS.PLAYING
+    // race-condition check with handleTimerFinish
+    if (gameStatus !== GAME_STATUS.FINISHED) {
+      gameStatus = GAME_STATUS.PLAYING
+    }
   }, 500)
 }
 function initColorList() {
@@ -92,14 +110,20 @@ function resetGame() {
   setTimerText('')
   // generate new color list
   initColorList()
+  // start new game
+  startTimer()
 }
 function attachEventForPlayAgainButton() {
   const playAgianButton = getPlayAgainButton()
   if (!playAgianButton) return
   playAgianButton.addEventListener('click', resetGame)
 }
+function startTimer() {
+  timer.start()
+}
 ;(() => {
   initColorList()
   attachEventForLiElemnt()
   attachEventForPlayAgainButton()
+  startTimer()
 })()
